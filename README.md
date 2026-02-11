@@ -1,4 +1,3 @@
-````md
 # godot-project-report
 
 A lightweight Python script that scans a Godot project folder and generates a single Markdown report.  
