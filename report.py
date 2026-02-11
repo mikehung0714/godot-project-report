@@ -12,6 +12,7 @@ Outputs ONE Markdown file containing:
 Assumption: PROJECT_ROOT is the Godot project root, treated as res://
 """
 
+import argparse
 import datetime as dt
 import os
 import re
@@ -21,10 +22,10 @@ from typing import Dict, List, Optional, Tuple
 
 
 # =========================
-# USER CONFIG (hard-coded)
+# USER CONFIG (hard-coded defaults)
 # =========================
-PROJECT_ROOT = Path(r"C:\Users\User\example").resolve()
-OUTPUT_MD = Path(r"C:\Users\User\project_report.md").resolve()
+PROJECT_ROOT = Path(r"").resolve()
+OUTPUT_MD = Path(r"").resolve()
 
 IGNORE_DIRS = {".git", ".godot", ".import", "__pycache__", ".venv", "venv"}
 IGNORE_FILES = {".DS_Store"}
@@ -319,7 +320,7 @@ def collect_files(project_root: Path, exts: set[str]) -> List[Path]:
 # -------------------------
 def generate_report(project_root: Path, output_md: Path) -> None:
     if not project_root.exists() or not project_root.is_dir():
-        raise RuntimeError(f"PROJECT_ROOT does not exist or is not a directory: {project_root}")
+        raise RuntimeError(f"Project root does not exist or is not a directory: {project_root}")
 
     now = dt.datetime.now().astimezone()
     scenes = collect_files(project_root, SCENE_EXTS)
@@ -372,6 +373,31 @@ def generate_report(project_root: Path, output_md: Path) -> None:
     output_md.write_text("\n".join(md).replace("\r\n", "\n"), encoding="utf-8")
 
 
+def parse_args() -> argparse.Namespace:
+    parser = argparse.ArgumentParser(
+        description="Generate a single Markdown report for a Godot project (.tscn + .gd). "
+                    "CLI options override the hard-coded defaults."
+    )
+    parser.add_argument(
+        "--project-root",
+        type=str,
+        default=None,
+        help="Godot project root directory (treated as res://). Overrides PROJECT_ROOT.",
+    )
+    parser.add_argument(
+        "--output",
+        type=str,
+        default=None,
+        help="Output Markdown path. Overrides OUTPUT_MD.",
+    )
+    return parser.parse_args()
+
+
 if __name__ == "__main__":
-    generate_report(PROJECT_ROOT, OUTPUT_MD)
-    print(f"✅ Report written to: {OUTPUT_MD}")
+    args = parse_args()
+
+    project_root = Path(args.project_root).resolve() if args.project_root else PROJECT_ROOT
+    output_md = Path(args.output).resolve() if args.output else OUTPUT_MD
+
+    generate_report(project_root, output_md)
+    print(f"✅ Report written to: {output_md}")

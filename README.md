@@ -39,12 +39,20 @@ It works with **Godot 4.x** text-based scenes (`.tscn`).
 
 ## Usage
 
-Edit the path variables at the top of `report.py`:
+### Option 1 — Command line (recommended)
+
+```bash
+python report.py --project-root "/path/to/godot/project" --output "project_report.md"
+````
+
+### Option 2 — Edit default paths
+
+You can edit the default path values inside `report.py`:
 
 ```python
 PROJECT_ROOT = Path("/path/to/your/godot/project")
 OUTPUT_MD = PROJECT_ROOT / "project_report.md"
-````
+```
 
 Then run:
 
@@ -65,9 +73,9 @@ example of the generated Markdown report.
 
 ## Notes
 
-* This tool parses `.tscn` files directly and does not require Godot Editor.
-* Binary scenes (`.scn`) are not supported.
-* Instanced sub-scenes are currently shown as nodes but not expanded inline.
+* Parses `.tscn` (text-based) scenes directly without requiring the Godot Editor.
+* Binary scene files (`.scn`) are not supported.
+* Instanced sub-scenes are listed as nodes but their internal structure is not expanded.
 
 ---
 
