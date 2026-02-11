@@ -56,7 +56,7 @@ The report will be written to `OUTPUT_MD`.
 
 ## Example
 
-See `example/sample_output.md`.
+See [`example/sample_output.md`](example/sample_output.md).
 
 ## License
 
