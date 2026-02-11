@@ -1,94 +1,69 @@
+````md
 # godot-project-report
 
-A lightweight Python tool that analyzes a Godot project and generates
-a single Markdown report containing:
+A lightweight Python script that scans a Godot project folder and generates a single Markdown report.  
+It is intended to produce an AI-friendly “context dump” for review, documentation, or sharing.
 
-- Full project file structure
-- Scene node trees with attached scripts
-- Full contents of all `.gd` scripts
+## What it generates
 
-This tool is designed to help with:
-- Project documentation
-- Code review
-- Team onboarding
-- Project auditing
+One Markdown file containing:
 
-It works with **Godot 4.x** text-based scenes (`.tscn`).
+- Project file tree (`res://`)
+- Scene node trees for `.tscn` files (node name, type, attached script if present)
+- Persisted scene signal connections from `.tscn` (`[connection ...]`)
+- Best-effort hints from scripts:
+  - `class_name` registry
+  - `@export*` variables (pattern-based)
+  - `signal` declarations
+  - heuristic `connect()` call detection
+- Best-effort dependency views:
+  - script→script dependency edges (derived from detected references)
+  - resource usage reverse index (who references what)
+  - unused resource list (heuristic; excludes some editor “recent/last opened” references)
+- Input Map from `project.godot` `[input]` section (when present)
 
----
+## Limitations (important)
 
-## Features
-
-- Recursively scans a Godot project directory (`res://`)
-- Outputs a **single Markdown file**
-- Scene analysis includes:
-  - Node hierarchy
-  - Node types
-  - Attached scripts (displayed as `[ScriptName.gd]`)
-- Dumps all GDScript files with syntax highlighting
-- No external dependencies (pure Python)
-
----
+- Static analysis only — runtime/dynamic loads may not be detected.
+- Parses text formats only:
+  - supported: `.tscn`, `.tres`, `.gd`
+  - not supported: binary `.scn`, `.res`
+- `uid://...` references are preserved but not resolved to a filesystem path.
+- Input Map output depends on what is stored in `project.godot`. If `[input]` is missing, actions/events may not be available to parse.
+- “Unused resources” is best-effort and can produce false positives/negatives depending on project style.
 
 ## Requirements
 
 - Python 3.9+
-- Godot project using text-based `.tscn` scenes
-
----
+- A Godot project directory containing `project.godot`
 
 ## Usage
 
-### Option 1 — Command line (recommended)
-
-```bash
-python report.py --project-root "/path/to/godot/project" --output "project_report.md"
-````
-
-### Option 2 — Edit default paths
-
-You can edit the default path values inside `report.py`:
+1) Edit the config block near the top of `report.py`:
 
 ```python
-PROJECT_ROOT = Path("/path/to/your/godot/project")
-OUTPUT_MD = PROJECT_ROOT / "project_report.md"
-```
+PROJECT_ROOT = Path(r"C:\path\to\your\godot-project").resolve()
+OUTPUT_MD = (PROJECT_ROOT / "project_report.md").resolve()
+INCLUDE_SCRIPT_CONTENTS = True
+````
 
-Then run:
+2. Run:
 
 ```bash
 python report.py
 ```
 
-The report will be generated at the specified output path.
+The report will be written to `OUTPUT_MD`.
 
----
+## Example
 
-## Example Output
-
-See [`example/sample_output.md`](example/sample_output.md) for a real
-example of the generated Markdown report.
-
----
-
-## Notes
-
-* Parses `.tscn` (text-based) scenes directly without requiring the Godot Editor.
-* Binary scene files (`.scn`) are not supported.
-* Instanced sub-scenes are listed as nodes but their internal structure is not expanded.
-
----
+See `example/sample_output.md`.
 
 ## License
 
-MIT License.
-
----
+MIT
 
 ## Disclaimer
 
-This is an independent community tool and is **not affiliated with or
-endorsed by the Godot Engine project**.
-
-Some parts of this project were developed with assistance from AI tools
-such as ChatGPT.
+This is an independent community tool and is not affiliated with or endorsed by the Godot Engine project.
+Some parts of this project were developed with assistance from AI tools (e.g. ChatGPT).
